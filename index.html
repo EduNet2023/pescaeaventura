@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduNet Pesca e Aventura</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-fish"></i> EduNet Pesca e Aventura</h1>
+            <nav>
+                <a href="#home" class="nav-link">Início</a>
+                <a href="#mare" class="nav-link">Tábua de Marés</a>
+                <a href="#youtube" class="nav-link">YouTube</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h2>Bem-vindo ao EduNet Pesca e Aventura</h2>
+                    <p>Sua fonte completa de informações para uma pesca perfeita!</p>
+                    
+                    <div class="info-cards">
+                        <div class="card">
+                            <h3><i class="fas fa-calendar-day"></i> Data de Hoje</h3>
+                            <p id="current-date">Carregando...</p>
+                        </div>
+                        
+                        <div class="card">
+                            <h3><i class="fas fa-moon"></i> Fase da Lua</h3>
+                            <div id="moon-phase">
+                                <img id="moon-image" src="" alt="Fase da Lua" style="display: none;">
+                                <p id="moon-text">Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mare" class="mare-section">
+            <div class="container">
+                <h2><i class="fas fa-water"></i> Tábua de Marés - Santos/SP</h2>
+                <p class="mare-subtitle">Informações essenciais para sua pescaria</p>
+                
+                <div id="tide-info" class="tide-container">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando informações das marés...</p>
+                    </div>
+                </div>
+                
+                <div class="fishing-tips">
+                    <h3><i class="fas fa-lightbulb"></i> Dicas de Pesca</h3>
+                    <ul>
+                        <li>🌊 As melhores pescarias acontecem durante a mudança das marés</li>
+                        <li>🌙 Lua nova e lua cheia são ideais para pesca noturna</li>
+                        <li>⏰ Pescarias 2 horas antes e depois da maré alta são mais produtivas</li>
+                        <li>🎣 Maré baixa é perfeita para pesca de praia e costão</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="youtube" class="youtube-section">
+            <div class="container">
+                <h2><i class="fab fa-youtube"></i> Nosso Canal no YouTube</h2>
+                <p>Acompanhe nossas aventuras e aprenda técnicas de pesca!</p>
+                
+                <div class="youtube-content">
+                    <div class="youtube-info">
+                        <h3>Conteúdo Exclusivo</h3>
+                        <ul>
+                            <li>🎥 Vídeos de pescarias em tempo real</li>
+                            <li>📚 Tutoriais e técnicas de pesca</li>
+                            <li>🗺️ Exploração de novos pesqueiros</li>
+                            <li>🛠️ Reviews de equipamentos</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="youtube-cta">
+                        <a href="#" id="youtube-link" class="youtube-btn" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-youtube"></i>
+                            Visitar Canal
+                        </a>
+                        <p>Inscreva-se e ative o sininho! 🔔</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 EduNet Pesca e Aventura. Todos os direitos reservados.</p>
+            <p>Dados de marés fornecidos pela Marinha do Brasil</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
