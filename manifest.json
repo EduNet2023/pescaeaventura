@@ -1,0 +1,67 @@
+{
+  "name": "EduNet Pesca e Aventura",
+  "short_name": "EduNet Pesca",
+  "description": "Sua fonte completa de informações para uma pesca perfeita! Tábua de marés, fases da lua e dicas de pesca.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2c5aa0",
+  "theme_color": "#2c5aa0",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "categories": ["sports", "lifestyle", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "banner.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tábua de Marés",
+      "short_name": "Marés",
+      "description": "Ver tábua de marés de Santos",
+      "url": "/#mare",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Canal YouTube",
+      "short_name": "YouTube",
+      "description": "Acessar canal no YouTube",
+      "url": "/#youtube",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
+

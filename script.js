@@ -1,3 +1,4 @@
+console.log("Script.js carregado.");
 // Configurações
 const YOUTUBE_CHANNEL_URL = 'https://youtube.com/@edunetpescaaventura?si=VcpQ8xUXb5pDCJf4';
 
@@ -172,12 +173,17 @@ function updateMoonPhase() {
     const moonImageElement = document.getElementById('moon-image');
     
     const moonPhase = getMoonPhase();
+    const nextMoon = getNextMoonPhase();
     
     moonTextElement.innerHTML = `
         <div class="moon-info">
             <div class="moon-icon">${moonPhase.icon}</div>
             <div class="moon-name">${moonPhase.name}</div>
             <div class="moon-description">${moonPhase.description}</div>
+            <div class="next-moon">
+                <small>Próxima: ${nextMoon.phase.name}</small>
+                <small>${formatNextMoonDate(nextMoon.date)} (${nextMoon.daysUntil} dias)</small>
+            </div>
         </div>
     `;
 }
@@ -341,6 +347,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Adiciona estilos dinâmicos
     addDynamicStyles();
     
+    // Inicializa contador de visitas
+    initVisitorCounter();
+    
     // Atualiza informações iniciais
     updateCurrentDate();
     updateMoonPhase();
@@ -353,12 +362,16 @@ document.addEventListener('DOMContentLoaded', function() {
     setupPeriodicUpdates();
     
     console.log('✅ Site carregado com sucesso!');
+    console.log('📊 Estatísticas de visitas:', getVisitorStats());
     
     // Remove loading e mostra conteúdo
     setTimeout(() => {
         document.querySelectorAll('.loading').forEach(el => {
             el.style.display = 'none';
         });
+        
+        // Simula visitantes online após 3 segundos
+        setTimeout(simulateOnlineVisitors, 3000);
     }, 1000);
 });
 
@@ -372,5 +385,139 @@ function showDebugInfo() {
 // Chama debug info se estiver em desenvolvimento
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     setTimeout(showDebugInfo, 2000);
+}
+
+
+
+// Função para gerenciar contador de visitas
+function initVisitorCounter() {
+    // Chave para armazenar no localStorage
+    const VISITOR_KEY = 'edunet_visitor_count';
+    const LAST_VISIT_KEY = 'edunet_last_visit';
+    
+    // Obter data atual
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+    
+    // Obter contador atual
+    let visitorCount = parseInt(localStorage.getItem(VISITOR_KEY)) || 0;
+    
+    // Se é uma nova visita (diferente dia ou primeira vez)
+    if (lastVisit !== today) {
+        visitorCount++;
+        localStorage.setItem(VISITOR_KEY, visitorCount.toString());
+        localStorage.setItem(LAST_VISIT_KEY, today);
+    }
+    
+    // Atualizar display do contador
+    updateVisitorDisplay(visitorCount);
+}
+
+// Função para atualizar o display do contador
+function updateVisitorDisplay(count) {
+    const visitorElement = document.getElementById('visitor-count');
+    if (visitorElement) {
+        // Adicionar animação de contagem
+        animateCounter(visitorElement, count);
+    }
+}
+
+// Função para animar o contador
+function animateCounter(element, targetCount) {
+    const duration = 2000; // 2 segundos
+    const startTime = Date.now();
+    const startCount = 0;
+    
+    function updateCount() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function para suavizar a animação
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentCount = Math.floor(startCount + (targetCount - startCount) * easeOutQuart);
+        
+        element.textContent = currentCount.toLocaleString('pt-BR');
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateCount);
+        } else {
+            element.textContent = targetCount.toLocaleString('pt-BR');
+        }
+    }
+    
+    updateCount();
+}
+
+// Função para simular visitantes online (opcional)
+function simulateOnlineVisitors() {
+    const baseVisitors = parseInt(localStorage.getItem('edunet_visitor_count')) || 0;
+    const onlineVariation = Math.floor(Math.random() * 5) + 1; // 1-5 visitantes online
+    const totalDisplay = baseVisitors + onlineVariation;
+    
+    // Atualizar apenas o display, não o contador real
+    const visitorElement = document.getElementById('visitor-count');
+    if (visitorElement && baseVisitors > 0) {
+        visitorElement.innerHTML = `${baseVisitors.toLocaleString('pt-BR')} <small style="opacity: 0.8;">(+${onlineVariation} online)</small>`;
+    }
+}
+
+// Função para resetar contador (para desenvolvimento/teste)
+function resetVisitorCounter() {
+    localStorage.removeItem('edunet_visitor_count');
+    localStorage.removeItem('edunet_last_visit');
+    console.log('Contador de visitantes resetado');
+}
+
+// Função para obter estatísticas de visitas
+function getVisitorStats() {
+    const count = parseInt(localStorage.getItem('edunet_visitor_count')) || 0;
+    const lastVisit = localStorage.getItem('edunet_last_visit');
+    
+    return {
+        totalVisitors: count,
+        lastVisit: lastVisit,
+        isFirstVisit: count === 1
+    };
+}
+
+
+// Função para calcular a próxima fase da lua
+function getNextMoonPhase() {
+    const today = new Date();
+    const currentPhase = getMoonPhase(today);
+    
+    // Ciclo lunar é aproximadamente 29.5 dias, cada fase dura cerca de 3.7 dias
+    const phaseDuration = 29.5305882 / 8; // ~3.69 dias por fase
+    
+    // Encontrar quantos dias até a próxima fase
+    let daysToNext = phaseDuration;
+    let nextDate = new Date(today);
+    nextDate.setDate(nextDate.getDate() + Math.ceil(daysToNext));
+    
+    // Verificar se mudou de fase
+    let attempts = 0;
+    while (getMoonPhase(nextDate).name === currentPhase.name && attempts < 10) {
+        nextDate.setDate(nextDate.getDate() + 1);
+        attempts++;
+    }
+    
+    const nextPhase = getMoonPhase(nextDate);
+    const daysUntil = Math.ceil((nextDate - today) / (1000 * 60 * 60 * 24));
+    
+    return {
+        phase: nextPhase,
+        date: nextDate,
+        daysUntil: daysUntil
+    };
+}
+
+// Função para formatar data da próxima lua
+function formatNextMoonDate(date) {
+    const options = {
+        day: 'numeric',
+        month: 'long',
+        timeZone: 'America/Sao_Paulo'
+    };
+    return date.toLocaleDateString('pt-BR', options);
 }
 
