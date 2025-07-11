@@ -43,115 +43,156 @@ function getMoonPhase(date = new Date()) {
     return phases[b];
 }
 
+// Função para calcular a próxima fase da lua
+function getNextMoonPhase(currentPhase) {
+    const phases = [
+        'Lua Nova', 'Lua Crescente', 'Quarto Crescente', 'Gibosa Crescente',
+        'Lua Cheia', 'Gibosa Minguante', 'Quarto Minguante', 'Lua Minguante'
+    ];
+    
+    const currentIndex = phases.indexOf(currentPhase.name);
+    const nextIndex = (currentIndex + 1) % phases.length;
+    const nextPhaseName = phases[nextIndex];
+    
+    // Calcular data aproximada da próxima fase (aproximadamente 3.7 dias entre fases)
+    const today = new Date();
+    const nextPhaseDate = new Date(today.getTime() + (3.7 * 24 * 60 * 60 * 1000));
+    const daysUntilNext = Math.ceil((nextPhaseDate - today) / (1000 * 60 * 60 * 24));
+    
+    return {
+        name: nextPhaseName,
+        date: nextPhaseDate.toLocaleDateString('pt-BR'),
+        daysUntil: daysUntilNext
+    };
+}
+
 // Função para obter dados de maré simulados (baseados em dados reais de Santos)
 function getTideData() {
     const today = new Date();
     const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
     
-    // Simulação baseada em padrões reais de maré de Santos
+    // Simulação baseada em padrões reais de Santos/SP
+    const baseHour = 6; // Primeira maré alta do dia
+    const tideInterval = 6.2; // Intervalo aproximado entre marés (6h 12min)
+    
     const tides = [];
-    const baseTime = new Date(today);
-    baseTime.setHours(0, 0, 0, 0);
-    
-    // Padrão típico de marés em Santos (2 altas e 2 baixas por dia)
-    const tidePattern = [
-        { type: 'alta', hour: 1, minute: 30, height: 1.3 },
-        { type: 'baixa', hour: 7, minute: 45, height: 0.4 },
-        { type: 'alta', hour: 14, minute: 15, height: 1.5 },
-        { type: 'baixa', hour: 20, minute: 30, height: 0.3 }
-    ];
-    
-    // Adiciona variação baseada no dia do ano para simular ciclos lunares
-    const lunarVariation = Math.sin((dayOfYear / 29.5) * 2 * Math.PI) * 0.2;
-    
-    tidePattern.forEach(tide => {
-        const tideTime = new Date(baseTime);
-        tideTime.setHours(tide.hour, tide.minute);
+    for (let i = 0; i < 4; i++) {
+        const hour = (baseHour + (i * tideInterval) + (dayOfYear * 0.8)) % 24;
+        const minute = Math.floor((hour % 1) * 60);
+        const hourInt = Math.floor(hour);
         
-        // Adiciona pequena variação diária
-        const variation = (Math.sin(dayOfYear * 0.1) * 30) + (Math.random() * 20 - 10);
-        tideTime.setMinutes(tideTime.getMinutes() + variation);
+        const isHigh = i % 2 === 0;
+        const height = isHigh ? 
+            (1.2 + Math.sin(dayOfYear * 0.1) * 0.3).toFixed(1) : 
+            (0.3 + Math.sin(dayOfYear * 0.1) * 0.2).toFixed(1);
         
         tides.push({
-            type: tide.type,
-            time: tideTime,
-            height: (tide.height + lunarVariation + (Math.random() * 0.2 - 0.1)).toFixed(1)
+            time: `${hourInt.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
+            type: isHigh ? 'alta' : 'baixa',
+            height: height,
+            timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), hourInt, minute)
         });
-    });
+    }
     
-    return tides.sort((a, b) => a.time - b.time);
+    // Ordenar por horário
+    tides.sort((a, b) => a.timestamp - b.timestamp);
+    
+    return tides;
 }
 
-// Função para formatar data
-function formatDate(date) {
-    const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'America/Sao_Paulo'
-    };
-    return date.toLocaleDateString('pt-BR', options);
-}
-
-// Função para formatar hora
-function formatTime(date) {
-    return date.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'America/Sao_Paulo'
-    });
-}
-
-// Função para determinar a próxima maré
+// Função para encontrar a próxima maré
 function getNextTide(tides) {
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const currentTime = now.getHours() * 60 + now.getMinutes();
     
     for (let tide of tides) {
-        if (tide.time > now) {
+        const tideTime = parseInt(tide.time.split(':')[0]) * 60 + parseInt(tide.time.split(':')[1]);
+        if (tideTime > currentTime) {
             return tide;
         }
     }
     
-    // Se não há mais marés hoje, retorna a primeira de amanhã
-    const tomorrow = new Date(today);
+    // Se não encontrou nenhuma maré hoje, retorna a primeira de amanhã
+    const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowTides = getTideData();
     return tomorrowTides[0];
 }
 
+// Função para atualizar a data atual
+function updateCurrentDate() {
+    const now = new Date();
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    const dateString = now.toLocaleDateString('pt-BR', options);
+    
+    const dateElement = document.getElementById('current-date');
+    if (dateElement) {
+        dateElement.textContent = dateString;
+    }
+}
+
+// Função para atualizar a fase da lua
+function updateMoonPhase() {
+    const currentPhase = getMoonPhase();
+    const nextPhase = getNextMoonPhase(currentPhase);
+    
+    const moonTextElement = document.getElementById('moon-text');
+    const moonImageElement = document.getElementById('moon-image');
+    
+    if (moonTextElement) {
+        moonTextElement.innerHTML = `
+            <strong>${currentPhase.name}</strong>
+            <div class="moon-description">${currentPhase.description}</div>
+            <div class="next-moon">
+                <h4>Próxima Fase:</h4>
+                <p><strong>${nextPhase.name}</strong></p>
+                <p>Data: ${nextPhase.date}</p>
+                <p>Em ${nextPhase.daysUntil} dias</p>
+            </div>
+        `;
+    }
+    
+    if (moonImageElement) {
+        moonImageElement.style.display = 'block';
+        moonImageElement.textContent = currentPhase.icon;
+        moonImageElement.style.fontSize = '4rem';
+        moonImageElement.style.filter = 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.5))';
+    }
+}
+
 // Função para renderizar dados de maré
 function renderTideData() {
-    const tideContainer = document.getElementById('tide-info');
     const tides = getTideData();
     const nextTide = getNextTide(tides);
     
+    const tideContainer = document.getElementById('tide-info');
+    if (!tideContainer) return;
+    
     let html = `
         <div class="next-tide">
-            <h3>🌊 Próxima Maré</h3>
-            <div class="next-tide-info">
-                <span class="tide-type">${nextTide.type.toUpperCase()}</span>
-                <span class="tide-time">${formatTime(nextTide.time)}</span>
-                <span class="tide-height">${nextTide.height}m</span>
-            </div>
+            <h3>Próxima Maré</h3>
+            <div class="tide-type ${nextTide.type}">${nextTide.type.toUpperCase()}</div>
+            <div class="tide-time">${nextTide.time}</div>
+            <div class="tide-height">${nextTide.height}m</div>
         </div>
         
-        <h3>📅 Marés de Hoje - Santos/SP</h3>
-        <div class="tide-table">
+        <h3 style="text-align: center; margin: 2rem 0 1rem; color: #2c5aa0;">
+            <i class="fas fa-clock"></i> Tábua Completa de Hoje
+        </h3>
+        <div class="tide-list">
     `;
     
     tides.forEach(tide => {
-        const isNext = tide === nextTide;
-        const tideClass = isNext ? 'tide-item next' : 'tide-item';
-        const icon = tide.type === 'alta' ? '⬆️' : '⬇️';
-        
         html += `
-            <div class="${tideClass}">
-                <h4>${icon} Maré ${tide.type.charAt(0).toUpperCase() + tide.type.slice(1)}</h4>
-                <div class="time">${formatTime(tide.time)}</div>
-                <div class="height">${tide.height} metros</div>
-                ${isNext ? '<div class="next-indicator">PRÓXIMA</div>' : ''}
+            <div class="tide-item ${tide.type}">
+                <h4>Maré ${tide.type === 'alta' ? 'Alta' : 'Baixa'}</h4>
+                <div class="time">${tide.time}</div>
+                <div class="height">${tide.height}m</div>
             </div>
         `;
     });
@@ -160,42 +201,129 @@ function renderTideData() {
     tideContainer.innerHTML = html;
 }
 
-// Função para atualizar a data atual
-function updateCurrentDate() {
-    const dateElement = document.getElementById('current-date');
-    const now = new Date();
-    dateElement.textContent = formatDate(now);
-}
-
-// Função para atualizar a fase da lua
-function updateMoonPhase() {
-    const moonTextElement = document.getElementById('moon-text');
-    const moonImageElement = document.getElementById('moon-image');
-    
-    const moonPhase = getMoonPhase();
-    const nextMoon = getNextMoonPhase();
-    
-    moonTextElement.innerHTML = `
-        <div class="moon-info">
-            <div class="moon-icon">${moonPhase.icon}</div>
-            <div class="moon-name">${moonPhase.name}</div>
-            <div class="moon-description">${moonPhase.description}</div>
-            <div class="next-moon">
-                <small>Próxima: ${nextMoon.phase.name}</small>
-                <small>${formatNextMoonDate(nextMoon.date)} (${nextMoon.daysUntil} dias)</small>
-            </div>
-        </div>
-    `;
-}
-
 // Função para configurar o link do YouTube
 function setupYouTubeLink() {
     const youtubeLink = document.getElementById('youtube-link');
-    youtubeLink.href = YOUTUBE_CHANNEL_URL;
+    if (youtubeLink) {
+        youtubeLink.href = YOUTUBE_CHANNEL_URL;
+    }
 }
 
-// Função para adicionar efeitos de scroll suave
-function setupSmoothScroll() {
+// Função para gerenciar contador de visitas aprimorado
+function initVisitorCounter() {
+    const today = new Date().toDateString();
+    const visitorData = JSON.parse(localStorage.getItem('edunet_visitor_data')) || {
+        totalVisits: 0,
+        dailyVisits: {},
+        firstVisit: today,
+        lastVisit: today,
+        uniqueVisitors: 0
+    };
+
+    // Verificar se é uma nova visita hoje
+    if (!visitorData.dailyVisits[today]) {
+        visitorData.dailyVisits[today] = 0;
+        visitorData.uniqueVisitors++;
+    }
+
+    // Incrementar contadores
+    visitorData.totalVisits++;
+    visitorData.dailyVisits[today]++;
+    visitorData.lastVisit = today;
+
+    // Salvar dados atualizados
+    localStorage.setItem('edunet_visitor_data', JSON.stringify(visitorData));
+
+    // Atualizar display
+    updateVisitorDisplay(visitorData);
+}
+
+function updateVisitorDisplay(data) {
+    const today = new Date().toDateString();
+    const todayVisits = data.dailyVisits[today] || 0;
+    const onlineVisitors = Math.floor(Math.random() * 8) + 3;
+
+    // Atualizar contador principal
+    const visitorCountElement = document.getElementById('visitor-count');
+    if (visitorCountElement) {
+        animateCounter(visitorCountElement, data.totalVisits);
+    }
+
+    // Criar seção de estatísticas detalhadas
+    const visitorCounter = document.querySelector('.visitor-counter');
+    if (visitorCounter && !document.querySelector('.visitor-stats')) {
+        const statsHTML = `
+            <h3><i class="fas fa-chart-line"></i> Estatísticas de Visitas</h3>
+            <div class="visitor-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-visits">${data.totalVisits}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="today-visits">${todayVisits}</span>
+                    <span class="stat-label">Hoje</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="unique-visitors">${data.uniqueVisitors}</span>
+                    <span class="stat-label">Únicos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="online-visitors">${onlineVisitors}</span>
+                    <span class="stat-label">Online</span>
+                </div>
+            </div>
+            <p><i class="fas fa-eye"></i> Visitantes: <span id="visitor-count">${data.totalVisits}</span></p>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">
+                <i class="fas fa-calendar"></i> Primeira visita: ${formatDate(data.firstVisit)}
+            </p>
+        `;
+        visitorCounter.innerHTML = statsHTML;
+    }
+
+    // Atualizar visitantes online periodicamente
+    setInterval(() => {
+        const newOnlineCount = Math.floor(Math.random() * 8) + 3;
+        const onlineElement = document.getElementById('online-visitors');
+        if (onlineElement) {
+            animateCounter(onlineElement, newOnlineCount);
+        }
+    }, 30000);
+}
+
+function animateCounter(element, targetValue) {
+    const startValue = parseInt(element.textContent) || 0;
+    const duration = 1000;
+    const startTime = performance.now();
+
+    function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuart);
+        
+        element.textContent = currentValue;
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.textContent = targetValue;
+        }
+    }
+    
+    requestAnimationFrame(updateCounter);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+}
+
+// Função para configurar navegação suave
+function setupSmoothScrolling() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -244,280 +372,32 @@ function setupPeriodicUpdates() {
     setInterval(renderTideData, 300000);
 }
 
-// Função para adicionar estilos CSS dinâmicos
-function addDynamicStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .next-tide {
-            background: linear-gradient(135deg, #4ecdc4, #44a08d);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .next-tide h3 {
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
-        
-        .next-tide-info {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .tide-type {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-        
-        .tide-time {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .tide-height {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-        }
-        
-        .tide-item.next {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .next-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #ee5a24;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .moon-info {
-            text-align: center;
-        }
-        
-        .moon-icon {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .moon-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .moon-description {
-            font-size: 0.9rem;
-            color: #666;
-            font-style: italic;
-        }
-        
-        @media (max-width: 768px) {
-            .next-tide-info {
-                flex-direction: column;
-            }
-            
-            .tide-time {
-                font-size: 1.3rem;
-            }
-        }
-    `;
-    document.head.appendChild(style);
+// Função para obter estatísticas (para debug)
+function getVisitorStats() {
+    return JSON.parse(localStorage.getItem('edunet_visitor_data'));
+}
+
+// Função para resetar contador (para desenvolvimento)
+function resetVisitorCounter() {
+    localStorage.removeItem('edunet_visitor_data');
+    console.log('Contador de visitas resetado!');
+    location.reload();
 }
 
 // Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🐟 EduNet Pesca e Aventura - Inicializando...');
+    console.log('DOM carregado, inicializando funcionalidades...');
     
-    // Adiciona estilos dinâmicos
-    addDynamicStyles();
-    
-    // Inicializa contador de visitas
-    initVisitorCounter();
-    
-    // Atualiza informações iniciais
+    // Inicializar todas as funcionalidades
     updateCurrentDate();
     updateMoonPhase();
     renderTideData();
     setupYouTubeLink();
-    
-    // Configura funcionalidades
-    setupSmoothScroll();
+    initVisitorCounter();
+    setupSmoothScrolling();
     setupScrollAnimations();
     setupPeriodicUpdates();
     
-    console.log('✅ Site carregado com sucesso!');
-    console.log('📊 Estatísticas de visitas:', getVisitorStats());
-    
-    // Remove loading e mostra conteúdo
-    setTimeout(() => {
-        document.querySelectorAll('.loading').forEach(el => {
-            el.style.display = 'none';
-        });
-        
-        // Simula visitantes online após 3 segundos
-        setTimeout(simulateOnlineVisitors, 3000);
-    }, 1000);
+    console.log('Todas as funcionalidades inicializadas com sucesso!');
 });
-
-// Função para mostrar informações de debug (pode ser removida em produção)
-function showDebugInfo() {
-    console.log('🌙 Fase da Lua:', getMoonPhase());
-    console.log('🌊 Dados de Maré:', getTideData());
-    console.log('📅 Data Atual:', formatDate(new Date()));
-}
-
-// Chama debug info se estiver em desenvolvimento
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    setTimeout(showDebugInfo, 2000);
-}
-
-
-
-// Função para gerenciar contador de visitas
-function initVisitorCounter() {
-    // Chave para armazenar no localStorage
-    const VISITOR_KEY = 'edunet_visitor_count';
-    const LAST_VISIT_KEY = 'edunet_last_visit';
-    
-    // Obter data atual
-    const today = new Date().toDateString();
-    const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
-    
-    // Obter contador atual
-    let visitorCount = parseInt(localStorage.getItem(VISITOR_KEY)) || 0;
-    
-    // Se é uma nova visita (diferente dia ou primeira vez)
-    if (lastVisit !== today) {
-        visitorCount++;
-        localStorage.setItem(VISITOR_KEY, visitorCount.toString());
-        localStorage.setItem(LAST_VISIT_KEY, today);
-    }
-    
-    // Atualizar display do contador
-    updateVisitorDisplay(visitorCount);
-}
-
-// Função para atualizar o display do contador
-function updateVisitorDisplay(count) {
-    const visitorElement = document.getElementById('visitor-count');
-    if (visitorElement) {
-        // Adicionar animação de contagem
-        animateCounter(visitorElement, count);
-    }
-}
-
-// Função para animar o contador
-function animateCounter(element, targetCount) {
-    const duration = 2000; // 2 segundos
-    const startTime = Date.now();
-    const startCount = 0;
-    
-    function updateCount() {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Easing function para suavizar a animação
-        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-        const currentCount = Math.floor(startCount + (targetCount - startCount) * easeOutQuart);
-        
-        element.textContent = currentCount.toLocaleString('pt-BR');
-        
-        if (progress < 1) {
-            requestAnimationFrame(updateCount);
-        } else {
-            element.textContent = targetCount.toLocaleString('pt-BR');
-        }
-    }
-    
-    updateCount();
-}
-
-// Função para simular visitantes online (opcional)
-function simulateOnlineVisitors() {
-    const baseVisitors = parseInt(localStorage.getItem('edunet_visitor_count')) || 0;
-    const onlineVariation = Math.floor(Math.random() * 5) + 1; // 1-5 visitantes online
-    const totalDisplay = baseVisitors + onlineVariation;
-    
-    // Atualizar apenas o display, não o contador real
-    const visitorElement = document.getElementById('visitor-count');
-    if (visitorElement && baseVisitors > 0) {
-        visitorElement.innerHTML = `${baseVisitors.toLocaleString('pt-BR')} <small style="opacity: 0.8;">(+${onlineVariation} online)</small>`;
-    }
-}
-
-// Função para resetar contador (para desenvolvimento/teste)
-function resetVisitorCounter() {
-    localStorage.removeItem('edunet_visitor_count');
-    localStorage.removeItem('edunet_last_visit');
-    console.log('Contador de visitantes resetado');
-}
-
-// Função para obter estatísticas de visitas
-function getVisitorStats() {
-    const count = parseInt(localStorage.getItem('edunet_visitor_count')) || 0;
-    const lastVisit = localStorage.getItem('edunet_last_visit');
-    
-    return {
-        totalVisitors: count,
-        lastVisit: lastVisit,
-        isFirstVisit: count === 1
-    };
-}
-
-
-// Função para calcular a próxima fase da lua
-function getNextMoonPhase() {
-    const today = new Date();
-    const currentPhase = getMoonPhase(today);
-    
-    // Ciclo lunar é aproximadamente 29.5 dias, cada fase dura cerca de 3.7 dias
-    const phaseDuration = 29.5305882 / 8; // ~3.69 dias por fase
-    
-    // Encontrar quantos dias até a próxima fase
-    let daysToNext = phaseDuration;
-    let nextDate = new Date(today);
-    nextDate.setDate(nextDate.getDate() + Math.ceil(daysToNext));
-    
-    // Verificar se mudou de fase
-    let attempts = 0;
-    while (getMoonPhase(nextDate).name === currentPhase.name && attempts < 10) {
-        nextDate.setDate(nextDate.getDate() + 1);
-        attempts++;
-    }
-    
-    const nextPhase = getMoonPhase(nextDate);
-    const daysUntil = Math.ceil((nextDate - today) / (1000 * 60 * 60 * 24));
-    
-    return {
-        phase: nextPhase,
-        date: nextDate,
-        daysUntil: daysUntil
-    };
-}
-
-// Função para formatar data da próxima lua
-function formatNextMoonDate(date) {
-    const options = {
-        day: 'numeric',
-        month: 'long',
-        timeZone: 'America/Sao_Paulo'
-    };
-    return date.toLocaleDateString('pt-BR', options);
-}
 
