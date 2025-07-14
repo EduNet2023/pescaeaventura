@@ -30,14 +30,14 @@ function getMoonPhase(date = new Date()) {
     }
     
     const phases = [
-        { name: 'Lua Nova', icon: '🌑', description: 'Ideal para pesca noturna' },
-        { name: 'Lua Crescente', icon: '🌒', description: 'Boa para pesca matinal' },
-        { name: 'Quarto Crescente', icon: '🌓', description: 'Excelente para pesca' },
-        { name: 'Gibosa Crescente', icon: '🌔', description: 'Muito boa para pesca' },
-        { name: 'Lua Cheia', icon: '🌕', description: 'Perfeita para pesca noturna' },
-        { name: 'Gibosa Minguante', icon: '🌖', description: 'Boa para pesca' },
-        { name: 'Quarto Minguante', icon: '🌗', description: 'Regular para pesca' },
-        { name: 'Lua Minguante', icon: '🌘', description: 'Melhor durante o dia' }
+        { name: 'Lua Nova', icon: 'moon-new.png', description: 'Ideal para pesca noturna' },
+        { name: 'Lua Crescente', icon: 'moon-waxing-crescent.png', description: 'Boa para pesca matinal' },
+        { name: 'Quarto Crescente', icon: 'moon-first-quarter.png', description: 'Excelente para pesca' },
+        { name: 'Gibosa Crescente', icon: 'moon-waxing-gibbous.png', description: 'Muito boa para pesca' },
+        { name: 'Lua Cheia', icon: 'moon-full.png', description: 'Perfeita para pesca noturna' },
+        { name: 'Gibosa Minguante', icon: 'moon-waning-gibbous.png', description: 'Boa para pesca' },
+        { name: 'Quarto Minguante', icon: 'moon-last-quarter.png', description: 'Regular para pesca' },
+        { name: 'Lua Minguante', icon: 'moon-waning-crescent.png', description: 'Melhor durante o dia' }
     ];
     
     return phases[b];
@@ -159,9 +159,7 @@ function updateMoonPhase() {
     
     if (moonImageElement) {
         moonImageElement.style.display = 'block';
-        moonImageElement.textContent = currentPhase.icon;
-        moonImageElement.style.fontSize = '4rem';
-        moonImageElement.style.filter = 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.5))';
+        moonImageElement.innerHTML = `<img src="${currentPhase.icon}" alt="${currentPhase.name}" style="width: 80px; height: 80px; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));">`;
     }
 }
 
