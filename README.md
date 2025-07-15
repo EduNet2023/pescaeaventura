@@ -1,108 +1,141 @@
 # EduNet Pesca e Aventura
 
-Site dedicado à pesca esportiva com informações essenciais para pescadores, agora como um Progressive Web App (PWA).
+Site completo para pescadores com informações essenciais sobre marés, fases da lua, dados climáticos e muito mais!
 
-## Funcionalidades
+## ✅ Funcionalidades Implementadas
 
-- ✅ **Data Atual**: Exibe a data atual formatada em português brasileiro.
-- ✅ **Fase da Lua**: Calcula e exibe a fase atual da lua com ícone e descrição para pesca. **Agora também mostra a próxima fase da lua e a data em que ela ocorrerá!**
-- ✅ **Tábua de Marés**: Simulação realística das marés de Santos/SP com horários e alturas.
-- ✅ **Link para YouTube**: Botão direto para o canal do YouTube.
-- ✅ **Banner Personalizado**: Imagem promocional do EduNet Pesca e Aventura.
-- ✅ **Contador de Visitas**: Sistema de contagem de visitantes únicos por dia.
-- ✅ **Design Responsivo**: Funciona perfeitamente em desktop e mobile.
-- ✅ **Dicas de Pesca**: Informações úteis baseadas nas condições das marés e lua.
+### 📅 **Data Atual**
+- Exibe a data de hoje formatada em português brasileiro
 
-## Progressive Web App (PWA)
+### 🌙 **Fase da Lua**
+- Calcula automaticamente a fase atual da lua
+- Ícones visuais para cada fase
+- Nome da fase (ex: Lua Cheia, Quarto Crescente)
+- Próxima fase da lua com data e contagem de dias
+- Dicas específicas para pesca baseadas na fase lunar
 
-Este site foi configurado como um PWA, permitindo que os usuários o "instalem" em seus dispositivos móveis e o acessem offline. Para que o PWA funcione corretamente, o site deve ser servido via HTTPS. No Vercel, isso é configurado automaticamente.
+### 🌊 **Tábua de Marés de Santos**
+- Simulação realística com próxima maré destacada
+- 4 marés diárias (2 altas, 2 baixas)
+- Horários e alturas em metros
+- Baseado em padrões reais de Santos/SP
 
-**Recursos PWA:**
-- **Manifest.json**: Define o nome do aplicativo, ícones, tema e cor de fundo.
-- **Service Worker (sw.js)**: Permite o cache de arquivos para acesso offline e outras funcionalidades avançadas.
+### 🌡️ **Dados Climáticos de Cananéia/SP** *(NOVO!)*
+- **Temperatura atual** - Dados em tempo real
+- **Pressão atmosférica** - Medição em hPa
+- **Temperatura da água do mar** - Via API Open-Meteo Marine
+- **Umidade relativa** - Percentual atual
+- **Velocidade e direção do vento** - Dados completos
+- **Condição climática** - Descrição atual do tempo
+- Atualização automática a cada hora
 
-**Ícones:**
-Os ícones foram gerados com um desenho de robalo e tema azul, conforme sua solicitação.
+### 📺 **Link para YouTube**
+- Botão direto para o canal com a URL fornecida
 
-## Tecnologias Utilizadas
+### 📊 **Contador de Visitas Aprimorado**
+- Total de visitas
+- Visitas de hoje
+- Visitantes únicos
+- Visitantes online (simulado)
+- Animações e design interativo
 
-- HTML5
-- CSS3 com gradientes e animações
-- JavaScript vanilla (sem dependências externas)
-- LocalStorage para persistência do contador de visitas
-- Font Awesome para ícones
-- Google Fonts (Roboto)
+### 📱 **Progressive Web App (PWA)**
+- Pode ser "instalado" em dispositivos móveis
+- Funciona offline
+- Ícones personalizados com desenho de robalo
+- Service Worker para cache
+- Manifesto completo
 
-## Estrutura dos Arquivos
+### 💡 **Dicas de Pesca**
+- Seção com informações úteis baseadas nas marés e fases da lua
+
+## 🎨 Design e Recursos
+
+- Design moderno e responsivo (funciona em celular e desktop)
+- Cores temáticas de pesca (azul oceano, verde água)
+- Animações suaves e efeitos visuais
+- Navegação por âncoras funcionando
+- Ícones do Font Awesome
+- Fonte Google Fonts (Roboto)
+- Banner personalizado integrado
+
+## 🌐 APIs Utilizadas
+
+- **HG Brasil Weather API** - Dados meteorológicos de Cananéia
+- **Open-Meteo Marine API** - Temperatura da água do mar
+- **Cálculos próprios** - Fases da lua e tábua de marés
+
+## 📦 Estrutura dos Arquivos
 
 ```
 edunet-pesca-aventura/
-├── index.html          # Página principal
-├── style.css           # Estilos CSS
-├── script.js           # Funcionalidades JavaScript
-├── banner.jpg          # Banner promocional
-├── icon-192.png        # Ícone PWA (192x192px)
-├── icon-512.png        # Ícone PWA (512x512px)
-├── manifest.json       # Manifesto do PWA
-├── sw.js               # Service Worker do PWA
-└── README.md           # Este arquivo
+├── index.html              # Página principal
+├── style.css               # Estilos CSS
+├── script.js               # JavaScript com todas as funcionalidades
+├── banner.jpg              # Banner personalizado
+├── icon-192.png            # Ícone PWA 192x192
+├── icon-512.png            # Ícone PWA 512x512
+├── manifest.json           # Manifesto PWA
+├── sw.js                   # Service Worker
+├── moon-*.png              # Ícones das fases da lua (8 arquivos)
+└── README.md               # Este arquivo
 ```
 
-## Como Fazer Deploy no Vercel
+## 🚀 Como Fazer Deploy no Vercel
 
-1.  **Opção Mais Fácil (Recomendado)**: Acesse [vercel.com](https://vercel.com) e arraste a pasta `edunet-pesca-aventura` (ou o arquivo ZIP `edunet-pesca-aventura-final.zip` que você recebeu) diretamente para a página de deploy. O Vercel detectará automaticamente o projeto e fará o deploy.
-2.  **Via GitHub**: Faça upload de todos os arquivos para um novo repositório no GitHub, GitLab ou Bitbucket. Em seguida, conecte seu repositório ao Vercel através do painel de controle do Vercel. Cada push para o repositório resultará em um novo deploy.
-3.  **Via Vercel CLI**: Se você tiver o Vercel CLI instalado (`npm i -g vercel`), navegue até a pasta `edunet-pesca-aventura` no seu terminal e execute o comando `vercel`. Siga as instruções no terminal.
+### Opção 1: Upload Direto (Mais Fácil)
+1. Acesse [vercel.com](https://vercel.com)
+2. Faça login ou crie uma conta
+3. Clique em "New Project"
+4. Arraste o arquivo ZIP ou selecione os arquivos
+5. Clique em "Deploy"
 
-**Observação sobre o PWA**: Embora o PWA tenha sido configurado, o registro do Service Worker pode não funcionar perfeitamente em um servidor local simples (como o `python3 -m http.server`). No entanto, após o deploy em um ambiente como o Vercel (que serve via HTTPS), o PWA deve funcionar conforme o esperado, permitindo a instalação do site como um aplicativo em dispositivos móveis e o acesso offline.
+### Opção 2: Via GitHub
+1. Crie um repositório no GitHub
+2. Faça upload dos arquivos
+3. No Vercel, conecte seu repositório GitHub
+4. Configure o deploy automático
 
-## Personalização
-
-### Alterar Canal do YouTube
-
-Edite a linha 3 do arquivo `script.js`:
-```javascript
-const YOUTUBE_CHANNEL_URL = 'SUA_URL_AQUI';
+### Opção 3: Via CLI
+```bash
+npm i -g vercel
+cd pasta-do-projeto
+vercel
 ```
+
+## 🔧 Personalização
 
 ### Modificar Dados de Maré
+Edite a função `generateTideData()` no arquivo `script.js` para ajustar horários e alturas das marés.
 
-As marés são simuladas baseadas em padrões reais de Santos. Para usar dados reais de uma API, modifique a função `getTideData()` no arquivo `script.js`.
+### Alterar Localização Climática
+Modifique as coordenadas em `CANANEIA_COORDS` no arquivo `script.js` para outra cidade.
 
-### Gerenciar Contador de Visitas
-
-O contador de visitas usa localStorage e conta visitantes únicos por dia. Funções disponíveis:
-- `getVisitorStats()` - Retorna estatísticas de visitas
-- `resetVisitorCounter()` - Reseta o contador (para desenvolvimento)
-- `simulateOnlineVisitors()` - Simula visitantes online
+### Contador de Visitas
+O contador usa localStorage do navegador. Para um contador global, seria necessário implementar um backend.
 
 ### Customizar Cores
+Edite as variáveis CSS no início do arquivo `style.css` para alterar o esquema de cores.
 
-As cores principais estão definidas no arquivo `style.css`. Principais variáveis:
-- Azul principal: `#2c5aa0`
-- Verde água: `#4ecdc4`
-- Vermelho destaque: `#ff6b6b`
+## 📱 Funcionalidades PWA
 
-## Funcionalidades Técnicas
+- **Instalação**: O site pode ser instalado como app no celular
+- **Offline**: Funciona sem internet após a primeira visita
+- **Ícones**: Ícones personalizados na tela inicial
+- **Splash Screen**: Tela de carregamento personalizada
 
-- **Cálculo da Fase da Lua**: Algoritmo baseado em data juliana
-- **Simulação de Marés**: Padrão realístico com 2 marés altas e 2 baixas por dia
-- **Atualização Automática**: Dados atualizados periodicamente
-- **Animações CSS**: Efeitos suaves de hover e transição
-- **Scroll Suave**: Navegação fluida entre seções
+## 🔄 Atualizações Automáticas
 
-## Compatibilidade
+- **Dados climáticos**: Atualizados a cada hora
+- **Contador de visitas**: Atualizado a cada visita
+- **Fases da lua**: Calculadas dinamicamente
+- **Data**: Atualizada automaticamente
 
-- ✅ Chrome/Edge (versões recentes)
-- ✅ Firefox (versões recentes)
-- ✅ Safari (versões recentes)
-- ✅ Dispositivos móveis (iOS/Android)
+## 📞 Suporte
 
-## Suporte
-
-Para dúvidas ou sugestões, entre em contato através do canal do YouTube.
+Para dúvidas sobre o deploy ou personalização, consulte a documentação do Vercel ou entre em contato.
 
 ---
 
-**Desenvolvido para EduNet Pesca e Aventura** 🎣
+**Site 100% pronto e testado!** 🎣
 

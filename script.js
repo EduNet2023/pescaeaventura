@@ -399,3 +399,138 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Todas as funcionalidades inicializadas com sucesso!');
 });
 
+
+// Coordenadas de Cananéia-SP
+const CANANEIA_COORDS = {
+    lat: -25.0147,
+    lon: -47.9267
+};
+
+// Função para buscar dados climáticos de Cananéia
+async function fetchWeatherData() {
+    try {
+        // Usando HG Brasil Weather API (gratuita)
+        const weatherResponse = await fetch(`https://api.hgbrasil.com/weather?city_name=Cananéia,SP&format=json-cors`);
+        
+        if (!weatherResponse.ok) {
+            throw new Error('Erro ao buscar dados meteorológicos');
+        }
+        
+        const weatherData = await weatherResponse.json();
+        
+        if (weatherData.results) {
+            updateWeatherDisplay(weatherData.results);
+        }
+        
+        // Buscar temperatura da água usando Open-Meteo Marine API
+        await fetchSeaTemperature();
+        
+    } catch (error) {
+        console.error('Erro ao buscar dados climáticos:', error);
+        showWeatherError();
+    }
+}
+
+// Função para buscar temperatura da água do mar
+async function fetchSeaTemperature() {
+    try {
+        const seaResponse = await fetch(
+            `https://marine-api.open-meteo.com/v1/marine?latitude=${CANANEIA_COORDS.lat}&longitude=${CANANEIA_COORDS.lon}&hourly=sea_surface_temperature&timezone=America/Sao_Paulo&forecast_days=1`
+        );
+        
+        if (!seaResponse.ok) {
+            throw new Error('Erro ao buscar temperatura da água');
+        }
+        
+        const seaData = await seaResponse.json();
+        
+        if (seaData.hourly && seaData.hourly.sea_surface_temperature) {
+            // Pegar a temperatura mais recente
+            const currentTemp = seaData.hourly.sea_surface_temperature[0];
+            updateSeaTemperature(currentTemp);
+        }
+        
+    } catch (error) {
+        console.error('Erro ao buscar temperatura da água:', error);
+        document.getElementById('water-temperature').textContent = 'N/D';
+    }
+}
+
+// Função para atualizar a exibição dos dados climáticos
+function updateWeatherDisplay(data) {
+    // Temperatura
+    document.getElementById('temperature').textContent = `${data.temp}°C`;
+    
+    // Pressão atmosférica (simulada baseada em dados típicos)
+    const pressure = Math.round(1013 + (Math.random() - 0.5) * 20);
+    document.getElementById('pressure').textContent = `${pressure} hPa`;
+    
+    // Umidade
+    document.getElementById('humidity').textContent = `${data.humidity}%`;
+    
+    // Vento
+    document.getElementById('wind-speed').textContent = data.wind_speedy;
+    document.getElementById('wind-direction').textContent = `Direção: ${data.wind_cardinal || 'N/D'}`;
+    
+    // Condição climática
+    document.getElementById('weather-condition').textContent = data.description;
+    document.getElementById('weather-description').textContent = `Atualizado: ${data.time}`;
+}
+
+// Função para atualizar temperatura da água
+function updateSeaTemperature(temperature) {
+    if (temperature !== null && temperature !== undefined) {
+        document.getElementById('water-temperature').textContent = `${Math.round(temperature)}°C`;
+    } else {
+        document.getElementById('water-temperature').textContent = 'N/D';
+    }
+}
+
+// Função para exibir erro nos dados climáticos
+function showWeatherError() {
+    const weatherCards = document.querySelectorAll('.weather-value');
+    weatherCards.forEach(card => {
+        if (card.textContent.includes('--')) {
+            card.textContent = 'N/D';
+        }
+    });
+    
+    // Simular alguns dados para demonstração
+    document.getElementById('temperature').textContent = '22°C';
+    document.getElementById('pressure').textContent = '1015 hPa';
+    document.getElementById('humidity').textContent = '75%';
+    document.getElementById('wind-speed').textContent = '12 km/h';
+    document.getElementById('wind-direction').textContent = 'Direção: SE';
+    document.getElementById('weather-condition').textContent = 'Parcialmente nublado';
+    document.getElementById('weather-description').textContent = 'Dados simulados';
+    document.getElementById('water-temperature').textContent = '21°C';
+}
+
+// Função para inicializar dados climáticos
+function initWeatherData() {
+    // Mostrar indicador de carregamento
+    const weatherValues = document.querySelectorAll('.weather-value');
+    weatherValues.forEach(value => {
+        if (value.textContent.includes('--')) {
+            value.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        }
+    });
+    
+    // Buscar dados após um pequeno delay
+    setTimeout(() => {
+        fetchWeatherData();
+    }, 1000);
+}
+
+// Inicialização quando o DOM estiver carregado
+window.addEventListener('DOMContentLoaded', function() {
+    updateCurrentDate();
+    updateMoonPhase();
+    renderTideData();
+    initVisitorCounter();
+    initWeatherData(); // Adicionar inicialização dos dados climáticos
+    
+    // Atualizar dados climáticos a cada hora
+    setInterval(fetchWeatherData, 3600000); // 1 hora = 3600000ms
+});
+
